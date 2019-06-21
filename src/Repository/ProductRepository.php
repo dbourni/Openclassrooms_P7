@@ -4,20 +4,28 @@ namespace App\Repository;
 
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-/**
- * @method Product|null find($id, $lockMode = null, $lockVersion = null)
- * @method Product|null findOneBy(array $criteria, array $orderBy = null)
- * @method Product[]    findAll()
- * @method Product[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
-class ProductRepository extends ServiceEntityRepository
+class ProductRepository extends AbstractRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function search($term, $order = 'asc', $limit = 20, $offset = 1)
     {
-        parent::__construct($registry, Product::class);
+        $queryBuilder = $this->createQueryBuilder('a')
+            ->select('a')
+            ->orderBy('a.name', $order);
+
+        if ($term) {
+            $queryBuilder->where('a.name LIKE ?1')
+                ->setParameter(1, '%'.$term.'%');
+        }
+
+        return $this->paginate($queryBuilder, $limit, $offset);
     }
+
 
     // /**
     //  * @return Product[] Returns an array of Product objects
