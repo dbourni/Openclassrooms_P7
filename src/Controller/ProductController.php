@@ -24,7 +24,7 @@ class ProductController extends AbstractFOSRestController
      * @Rest\View(
      *     populateDefaultVars = false,
      *     serializerGroups = {"detail"},
-     *     statusCode = 201
+     *     statusCode = 200
      *     )
      */
     public function showAction(Product $product)
@@ -40,7 +40,6 @@ class ProductController extends AbstractFOSRestController
      *
      * @Rest\QueryParam(
      *     name="keyword",
-     *     requirements="[a-zA-Z0-9]",
      *     nullable=true,
      *     description="The keyword to search for."
      * )
@@ -49,7 +48,7 @@ class ProductController extends AbstractFOSRestController
      *     name="limit",
      *     requirements="\d+",
      *     default="15",
-     *     description="Max number of movies per page."
+     *     description="Max number of products per page."
      * )
      *
      * @Rest\QueryParam(
@@ -68,26 +67,18 @@ class ProductController extends AbstractFOSRestController
      *
      * @Rest\View(populateDefaultVars = false,
      *     serializerGroups = {"list"},
-     *     statusCode = 201
+     *     statusCode = 200
      * )
      */
     public function listAction(ParamFetcherInterface $paramFetcher)
     {
-        $pager = $this->getDoctrine()->getRepository('App:Product')->search(
+        $pager = $this->getDoctrine()->getRepository(Product::class)->search(
             $paramFetcher->get('keyword'),
             $paramFetcher->get('order'),
             $paramFetcher->get('limit'),
             $paramFetcher->get('offset')
-//            'Phone', 'asc', 5, 1
         );
 
-        //TODO Bug - Avec requirements="[a-zA-Z0-9]" dans le QueryParam de keyword seuls les chiffres sont pris en compte
         return new Products($pager);
-//        return $paramFetcher->get('keyword');
-    }
-
-    public function createAction()
-    {
-        //TODO Créer la fonction createAction
     }
 }
