@@ -9,12 +9,17 @@ use App\Representation\Users;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 class UserController extends AbstractFOSRestController
 {
     /**
+     * Detail of a particular user
+     *
      * @param User $user
      *
      * @return User
@@ -23,13 +28,21 @@ class UserController extends AbstractFOSRestController
      *     path = "/users/{id}",
      *     name="app_user_show",
      *     requirements = {"id"="\d+"}
-     *     )
+     * )
      *
      * @Rest\View(
      *     populateDefaultVars = false,
      *     serializerGroups = {"detail"},
      *     statusCode = 200
-     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Detail of a particular user",
+     *     @Model(type=User::class, groups={"detail"})
+     * )
+     *
+     * @Security(name="Bearer")
      */
     public function showAction(User $user)
     {
@@ -37,6 +50,8 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
+     * List the users
+     *
      * @Rest\Get(
      *     path="/users",
      *     name="app_users_list"
@@ -73,6 +88,14 @@ class UserController extends AbstractFOSRestController
      *     serializerGroups = {"list"},
      *     statusCode = 200
      * )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="List of users",
+     *     @Model(type=User::class, groups={"list"})
+     * )
+     *
+     * @Security(name="Bearer")
      */
     public function listAction(ParamFetcherInterface $paramFetcher)
     {
@@ -94,8 +117,11 @@ class UserController extends AbstractFOSRestController
 
 
     /**
+     * Create a user
+     *
      * @param User $user
      * @return mixed
+     * @throws ResourceValidationException
      *
      * @Rest\Post(
      *     path="/users",
@@ -112,6 +138,32 @@ class UserController extends AbstractFOSRestController
      *     "user",
      *     converter="fos_rest.request_body"
      * )
+     *
+     * @Rest\RequestParam(
+     *     name = "email",
+     *     nullable=false,
+     *     description="User email"
+     * )
+     *
+     * @Rest\RequestParam(
+     *     name = "name",
+     *     nullable=false,
+     *     description="User name"
+     * )
+     *
+     * @Rest\RequestParam(
+     *     name = "password",
+     *     nullable=false,
+     *     description="User password"
+     * )
+     *
+     * @SWG\Response(
+     *     response=201,
+     *     description="Detail of the created user",
+     *     @Model(type=User::class, groups={"detail"})
+     * )
+     *
+     * @Security(name="Bearer")
      */
     public function createAction(User $user, ConstraintViolationList $violations)
     {
@@ -139,6 +191,8 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
+     * Delete a user
+     *
      * @Rest\Delete(
      *     path = "/users/{id}",
      *     name="app_user_delete",
@@ -149,6 +203,13 @@ class UserController extends AbstractFOSRestController
      *     populateDefaultVars = false,
      *     statusCode = 204
      *     )
+     *
+     * @SWG\Response(
+     *     response=204,
+     *     description="Nothing",
+     * )
+     *
+     * @Security(name="Bearer")
      */
     public function deleteAction(User $user)
     {

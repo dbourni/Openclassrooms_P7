@@ -7,10 +7,20 @@ use App\Representation\Products;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
 
+
+/**
+ * Class ProductController
+ * @package App\Controller
+ */
 class ProductController extends AbstractFOSRestController
 {
     /**
+     * Detail of a particular product
+     *
      * @param Product $product
      *
      * @return Product
@@ -18,14 +28,22 @@ class ProductController extends AbstractFOSRestController
      * @Rest\Get(
      *     path = "/products/{id}",
      *     name="app_product_show",
-     *     requirements = {"id"="\d+"}
+     *     requirements = {"id"="\d+"},
      *     )
      *
      * @Rest\View(
      *     populateDefaultVars = false,
      *     serializerGroups = {"detail"},
-     *     statusCode = 200
+     *     statusCode = 200,
      *     )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Detail of a particular product",
+     *     @Model(type=Product::class, groups={"detail"})
+     * )
+     *
+     * @Security(name="Bearer")
      */
     public function showAction(Product $product)
     {
@@ -33,6 +51,8 @@ class ProductController extends AbstractFOSRestController
     }
 
     /**
+     * List the products
+     *
      * @Rest\Get(
      *     path="/products",
      *     name="app_products_list"
@@ -69,6 +89,14 @@ class ProductController extends AbstractFOSRestController
      *     serializerGroups = {"list"},
      *     statusCode = 200
      * )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="List of the products",
+     *     @Model(type=Product::class, groups={"list"})
+     * )
+     *
+     * @Security(name="Bearer")
      */
     public function listAction(ParamFetcherInterface $paramFetcher)
     {
