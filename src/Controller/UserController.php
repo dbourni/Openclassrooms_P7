@@ -14,6 +14,7 @@ use Nelmio\ApiDocBundle\Annotation\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserController extends AbstractFOSRestController
 {
@@ -103,7 +104,7 @@ class UserController extends AbstractFOSRestController
         $this->denyAccessUnlessGranted('ROLE_CLIENT');
 
         $actualUser = $this->getUser();
-        $client = $this->getDoctrine()->getRepository(Client::class)->find($actualUser->getId());
+        $client = $this->getDoctrine()->getRepository(Client::class)->find($actualUser->getClient());
 
         $pager = $this->getDoctrine()->getRepository(User::class)->search(
             $paramFetcher->get('keyword'),
@@ -166,7 +167,7 @@ class UserController extends AbstractFOSRestController
      *
      * @Security(name="Bearer")
      */
-    public function createAction(User $user, ConstraintViolationList $violations)
+    public function createAction(User $user, ConstraintViolationList $violations, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->denyAccessUnlessGranted('ROLE_CLIENT');
 
@@ -185,6 +186,12 @@ class UserController extends AbstractFOSRestController
         $em = $this->getDoctrine()->getManager();
 
         $user->setClient($client);
+        $user->setPassword(
+            $passwordEncoder->encodePassword(
+                $user,
+                $user->getPassword()
+            )
+        );
         $em->persist($user);
         $em->flush();
 
