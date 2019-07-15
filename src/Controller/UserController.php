@@ -11,10 +11,11 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class UserController extends AbstractFOSRestController
 {
@@ -44,6 +45,8 @@ class UserController extends AbstractFOSRestController
      * )
      *
      * @Security(name="Bearer")
+     *
+     * @Cache(smaxage="60", mustRevalidate=true)
      */
     public function showAction(User $user)
     {
@@ -53,6 +56,10 @@ class UserController extends AbstractFOSRestController
 
     /**
      * List the users
+     *
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return Users
      *
      * @Rest\Get(
      *     path="/users",
@@ -98,6 +105,8 @@ class UserController extends AbstractFOSRestController
      * )
      *
      * @Security(name="Bearer")
+     *
+     * @Cache(smaxage="60", mustRevalidate=true)
      */
     public function listAction(ParamFetcherInterface $paramFetcher)
     {
@@ -122,7 +131,11 @@ class UserController extends AbstractFOSRestController
      * Create a user
      *
      * @param User $user
+     * @param ConstraintViolationList $violations
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     *
      * @return mixed
+     *
      * @throws ResourceValidationException
      *
      * @Rest\Post(
@@ -200,6 +213,8 @@ class UserController extends AbstractFOSRestController
 
     /**
      * Delete a user
+     *
+     * @param User $user
      *
      * @Rest\Delete(
      *     path = "/users/{id}",

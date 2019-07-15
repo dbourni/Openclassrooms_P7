@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Swagger\Annotations as SWG;
 
 
@@ -44,6 +45,8 @@ class ProductController extends AbstractFOSRestController
      * )
      *
      * @Security(name="Bearer")
+     *
+     * @Cache(smaxage="3600", mustRevalidate=true)
      */
     public function showAction(Product $product)
     {
@@ -52,6 +55,10 @@ class ProductController extends AbstractFOSRestController
 
     /**
      * List the products
+     *
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return Products
      *
      * @Rest\Get(
      *     path="/products",
@@ -97,6 +104,8 @@ class ProductController extends AbstractFOSRestController
      * )
      *
      * @Security(name="Bearer")
+     *
+     * @Cache(smaxage="3600", mustRevalidate=true)
      */
     public function listAction(ParamFetcherInterface $paramFetcher)
     {
