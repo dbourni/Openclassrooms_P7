@@ -31,5 +31,7 @@ fos_rest:
     enabled: true
     codes:
       App\Exception\ResourceValidationException: 400
+      App\Exception\AccessException: 403
     messages:
       App\Exception\ResourceValidationException: true
+      App\Exception\AccessException: true

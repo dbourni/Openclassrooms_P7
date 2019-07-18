@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Client;
 use App\Entity\User;
+use App\Exception\AccessException;
+use App\Exception\NotFoundException;
 use App\Exception\ResourceValidationException;
 use App\Representation\Users;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -26,6 +28,8 @@ class UserController extends AbstractFOSRestController
      *
      * @return User
      *
+     * @throws AccessException
+     *
      * @Rest\Get(
      *     path = "/users/{id}",
      *     name="app_user_show",
@@ -44,13 +48,25 @@ class UserController extends AbstractFOSRestController
      *     @Model(type=User::class, groups={"detail"})
      * )
      *
-     * @Security(name="Bearer")
+     * @SWG\Response(
+     *     response=404,
+     *     description="This user does not exists."
+     * )
      *
-     * @Cache(smaxage="60", mustRevalidate=true)
+     * @Security(name="Bearer")
      */
     public function showAction(User $user)
     {
-        //TODO Refuser la consultation si ce n'est pas un utilisateur du client (403 - Forbidden)
+        $this->denyAccessUnlessGranted('ROLE_CLIENT');
+
+        $actualUser = $this->getUser();
+        $client = $this->getDoctrine()->getRepository(Client::class)->find($actualUser->getClient());
+
+        if($client != $user->getClient()){
+            $message = 'You can\'t access this resource.';
+            throw new AccessException($message);
+        }
+
         return $user;
     }
 
@@ -178,6 +194,11 @@ class UserController extends AbstractFOSRestController
      *     @Model(type=User::class, groups={"detail"})
      * )
      *
+     * @SWG\Response(
+     *     response=400,
+     *     description="The JSON sent contains invalid data",
+     * )
+     *
      * @Security(name="Bearer")
      */
     public function createAction(User $user, ConstraintViolationList $violations, UserPasswordEncoderInterface $passwordEncoder)
@@ -216,6 +237,8 @@ class UserController extends AbstractFOSRestController
      *
      * @param User $user
      *
+     * @throws AccessException
+     *
      * @Rest\Delete(
      *     path = "/users/{id}",
      *     name="app_user_delete",
@@ -232,13 +255,24 @@ class UserController extends AbstractFOSRestController
      *     description="Nothing",
      * )
      *
+     * @SWG\Response(
+     *     response=404,
+     *     description="This user does not exists."
+     * )
+     *
      * @Security(name="Bearer")
      */
     public function deleteAction(User $user)
     {
-        //TODO Refuser la suppression si ce n'est pas un utilisateur du client (403 - Forbidden)
-
         $this->denyAccessUnlessGranted('ROLE_CLIENT');
+
+        $actualUser = $this->getUser();
+        $client = $this->getDoctrine()->getRepository(Client::class)->find($actualUser->getClient());
+
+        if($client != $user->getClient()){
+            $message = 'You can\'t access this resource.';
+            throw new AccessException($message);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($user);
