@@ -44,9 +44,14 @@ class ProductController extends AbstractFOSRestController
      *     @Model(type=Product::class, groups={"detail"})
      * )
      *
+     * @SWG\Response(
+     *     response=404,
+     *     description="This product does not exists."
+     * )
+     *
      * @Security(name="Bearer")
      *
-     * @Cache(smaxage="3600", mustRevalidate=true)
+     * @Cache(smaxage="21600", mustRevalidate=true)
      */
     public function showAction(Product $product)
     {
@@ -105,7 +110,7 @@ class ProductController extends AbstractFOSRestController
      *
      * @Security(name="Bearer")
      *
-     * @Cache(smaxage="3600", mustRevalidate=true)
+     * @Cache(smaxage="21600", mustRevalidate=true)
      */
     public function listAction(ParamFetcherInterface $paramFetcher)
     {
